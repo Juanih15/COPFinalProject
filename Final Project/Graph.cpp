@@ -1,6 +1,10 @@
-
+#include "PriorityQueue.hpp"
+#include <unordered_map>
+#include <limits>
+#include <algorithm>
 #include "Graph.hpp"
 #include <string>
+
 void Graph::addVertex(std::string label)
 {
     for (Vertex *v : vertexList)
@@ -92,30 +96,88 @@ void Graph::removeEdge(std::string label1, std::string label2)
     v2->removeEdge(v1);
 }
 
-// virtual unsigned long shortestPath(std::string startLabel, std::string endLabel, std::vector<std::string> &path){
-// Map for shortest distance so far <vert, vertexInfoStruct, ifVisited>
-// vertexInfoStruct: shortestDist, prevNode
-//
+unsigned long Graph::shortestPath(std::string startLabel,
+                                  std::string endLabel,
+                                  std::vector<std::string> &path)
+{
+    path.clear();
 
-// For each v in V
-// If vert = startVert
-// Add <vert, (0, NULL) to map
-// Else
-// Add <vert, (inf, NULL) to map
-// Add the k=dist, v=vert entry to PQ
+    // Locate Start & End Vertices
+    Vertex *start = nullptr;
+    Vertex *end = nullptr;
 
-// While PQ not empty
-// Pop from PQ
-// Access v's adjacent list
-// For each vert in v's adjacent list
-// If not visited
-// Compare (dist in adj list + v's dist) w/ that in map
-// If less than,
-// replace map dist with ()
-// in map put v as the adjv's prev node
-// Add k=dist, v=node to PQ
-// Mark v as visited
+    for (Vertex *v : vertexList)
+    {
+        if (v->getLabel() == startLabel)
+            start = v;
+        if (v->getLabel() == endLabel)
+            end = v;
+    }
 
-// Search map for endVert
-// Fill return vector with route by back tracing using the vert's prevNodes
-// Return the vert's distance as the shortest distance
+    if (!start || !end)
+    {
+        return ULONG_MAX; // invalid input
+    }
+
+    // Distance map & predecessor map
+    std::unordered_map<Vertex *, unsigned long> dist;
+    std::unordered_map<Vertex *, Vertex *> prev;
+
+    for (Vertex *v : vertexList)
+    {
+        dist[v] = ULONG_MAX;
+        prev[v] = nullptr;
+    }
+
+    dist[start] = 0;
+
+    // Initialize Priority Queue
+    PriorityQueue pq;
+    for (Vertex *v : vertexList)
+    {
+        pq.push(v, dist[v]);
+    }
+
+    // Dijkstra’s Algorithm
+    while (!pq.empty())
+    {
+        Vertex *u = pq.pop();
+        if (!u)
+            break;
+
+        // Early exit optimization
+        if (u == end)
+            break;
+
+        for (auto &adj : u->getAdjList())
+        {
+            Vertex *v = adj.first;
+            unsigned long w = adj.second;
+
+            // Relax edge u → v
+            if (dist[u] != ULONG_MAX && dist[u] + w < dist[v])
+            {
+                dist[v] = dist[u] + w;
+                prev[v] = u;
+                pq.decreaseKey(v, dist[v]);
+            }
+        }
+    }
+
+    // Reconstruct Path using prev map
+    if (dist[end] == ULONG_MAX)
+    {
+        return ULONG_MAX; // no path exists
+    }
+
+    std::vector<std::string> revPath;
+    for (Vertex *v = end; v != nullptr; v = prev[v])
+    {
+        revPath.push_back(v->getLabel());
+    }
+
+    std::reverse(revPath.begin(), revPath.end());
+    path = revPath;
+
+    return dist[end];
+}
