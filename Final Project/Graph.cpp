@@ -96,13 +96,11 @@ void Graph::removeEdge(std::string label1, std::string label2)
     v2->removeEdge(v1);
 }
 
-unsigned long Graph::shortestPath(std::string startLabel,
-                                  std::string endLabel,
-                                  std::vector<std::string> &path)
+unsigned long Graph::shortestPath(std::string startLabel, std::string endLabel, std::vector<std::string> &path)
 {
     path.clear();
 
-    // Locate Start & End Vertices
+    // Locate start and end vertices
     Vertex *start = nullptr;
     Vertex *end = nullptr;
 
@@ -119,7 +117,7 @@ unsigned long Graph::shortestPath(std::string startLabel,
         return ULONG_MAX; // invalid input
     }
 
-    // Distance map & predecessor map
+    // Distance map and predecessor map
     std::unordered_map<Vertex *, unsigned long> dist;
     std::unordered_map<Vertex *, Vertex *> prev;
 
@@ -164,7 +162,7 @@ unsigned long Graph::shortestPath(std::string startLabel,
         }
     }
 
-    // Reconstruct Path using prev map
+    // Reconstruct path using prev map
     if (dist[end] == ULONG_MAX)
     {
         return ULONG_MAX; // no path exists

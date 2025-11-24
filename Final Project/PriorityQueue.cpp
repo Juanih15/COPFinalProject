@@ -3,10 +3,10 @@
 
 PriorityQueue::PriorityQueue() {}
 
-// Insert or update
+// insert or update
 void PriorityQueue::push(Vertex *v, unsigned long dist)
 {
-    // If vertex already exists, decrease the key
+    // if vertex already exists, decrease the key
     if (pos.count(v))
     {
         decreaseKey(v, dist);
@@ -25,7 +25,7 @@ bool PriorityQueue::empty() const
     return heap.empty();
 }
 
-// Remove and return the vertex with minimum distance
+// remove and return the vertex with minimum distance
 Vertex *PriorityQueue::pop()
 {
     if (heap.empty())
@@ -33,17 +33,17 @@ Vertex *PriorityQueue::pop()
 
     Vertex *minV = heap[0].v;
 
-    // Remove mapping for the extracted root
+    // remove mapping for the extracted root
     pos.erase(minV);
 
-    // Move the last element to root
+    // move the last element to root
     if (!heap.empty())
     {
         heap[0] = heap.back();
         heap.pop_back();
     }
 
-    // Fix the pos map and heap
+    // fix the pos map and heap
     if (!heap.empty())
     {
         pos[heap[0].v] = 0;
